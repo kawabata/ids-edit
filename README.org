@@ -1,0 +1,31 @@
+* IDS Editing Tool for Emacs
+
+This tool provides various IDS (Ideographic Description Sequence)
+editing tools for Emacs. IDS represents a structure of Ideographs. For
+example, "幡" is decomposed to "⿰巾番" in IDS, and " "⿱艹化" will be
+composed to "花". "⿰" and "⿱" are called IDCs (Ideographic
+Description Characters).
+
+** Basic setup
+
+Please BYTE-COMPLILE the elisp file. That will integrate data files
+into compiled lisp file.
+
+: (autoload 'ids-edit "ids-edit" nil t) ;; if necessary
+: (global-set-key (kbd "M-U") 'ids-edit) ;; sample keybinding.
+
+** Decomposing CJK Ideographs to IDS
+
+Just `M-x ids-edit' after the CJK Ideographs. There should be no
+numerics, ideographs or IDCs at the cursor.
+
+** Composing IDS to CJK Ideograph
+
+Just `M-x ids-edit' on partial IDS. It may contain a (range of)
+strokes number. When there are multiple candidates, they will all be
+inserted to the current position with bracket. Attaching G,T,J,K at
+the end will limit the candidates to specific charset (namely, GB2312,
+Big5, JISX0213/0212, KSX1011).
+
+For example, "⿰氵20-22J" will be composed to "[灊灝灞灣]".
+
