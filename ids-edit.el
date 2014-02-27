@@ -42,6 +42,10 @@
 ;; Big5, JISX0213/0212, KSX1011).
 ;;
 ;; For example, "⿰氵20-22J" will be composed to "[灊灝灞灣]".
+;;
+;; ** "ids-edit" Minor Mode
+;;
+;; This mode lets you type IDC easily, by bounding them to M-0..9 keys.
 
 ;;; Code:
 
@@ -115,6 +119,13 @@
 (defconst ivs-edit-regexp
   "\\(\\(?:[⿰-⿻]\\|\\cC\\)+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\(\\cC+\\)?\\([CJKT]\\)?"
   "Regular Expression for searching IDS.")
+
+;;;;;###autoload
+(easy-mmode-define-minor-mode
+ ids-edit-mode "IDS Edit Mode" nil "⿰"
+ '(("\M-0" . "⿰") ("\M-1" . "⿱") ("\M-2" . "⿲") ("\M-3" . "⿳")
+   ("\M-4" . "⿴") ("\M-5" . "⿵") ("\M-6" . "⿶") ("\M-7" . "⿷")
+   ("\M-8" . "⿸") ("\M-9" . "⿹") ("\M--" . "⿺") ("\M-=" . "⿻")))
 
 ;;;;;###autoload
 (defun ids-edit (arg)

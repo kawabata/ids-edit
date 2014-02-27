@@ -29,3 +29,6 @@ Big5, JISX0213/0212, KSX1011).
 
 For example, "⿰氵20-22J" will be composed to "[灊灝灞灣]".
 
+** "ids-edit" Minor Mode
+
+This mode lets you type IDC easily, by bounding them to M-0..9 keys.
