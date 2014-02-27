@@ -120,14 +120,14 @@
   "\\(\\(?:[⿰-⿻]\\|\\cC\\)+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\(\\cC+\\)?\\([CJKT]\\)?"
   "Regular Expression for searching IDS.")
 
-;;;;;###autoload
+;;;###autoload
 (easy-mmode-define-minor-mode
  ids-edit-mode "IDS Edit Mode" nil "⿰"
  '(("\M-0" . "⿰") ("\M-1" . "⿱") ("\M-2" . "⿲") ("\M-3" . "⿳")
    ("\M-4" . "⿴") ("\M-5" . "⿵") ("\M-6" . "⿶") ("\M-7" . "⿷")
    ("\M-8" . "⿸") ("\M-9" . "⿹") ("\M--" . "⿺") ("\M-=" . "⿻")))
 
-;;;;;###autoload
+;;;###autoload
 (defun ids-edit (arg)
   "Insert and Verify IDS after the current point.
 Prefix argument ARG forces to decompose previous Ideograph."
