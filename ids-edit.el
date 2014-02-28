@@ -7,22 +7,22 @@
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.140227
+;; Version: 1.140228
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
 ;;
 ;; * IDS Editing Tool for Emacs
 ;;
-;; This tool provides various IDS (Ideographic Description Sequence)
-;; editing tools for Emacs. IDS represents a structure of Ideographs. For
-;; example, "幡" is decomposed to "⿰巾番" in IDS, and " "⿱艹化" will be
-;; composed to "花". "⿰" and "⿱" are called IDCs (Ideographic
-;; Description Characters).
+;; This file provides various IDS (Ideographic Description Sequence)
+;; editing tools for Emacs. The IDS represents a structure of
+;; Ideographs. For example, "地" can be decomposed to "⿰土也" in IDS,
+;; and "⿱艹化" can be composed to "花". "⿰" and "⿱" are called IDCs
+;; (Ideographic Description Characters).
 ;;
 ;; ** Basic setup
 ;;
-;; Please BYTE-COMPLILE the elisp file. That will integrate data files
+;; Please BYTE-COMPILE the elisp file. That will integrate data files
 ;; into compiled lisp file.
 ;;
 ;; : (autoload 'ids-edit "ids-edit" nil t) ;; if necessary
@@ -45,7 +45,13 @@
 ;;
 ;; ** "ids-edit" Minor Mode
 ;;
-;; This mode lets you type IDC easily, by bounding them to M-0..9 keys.
+;; This mode lets you type IDC easily, by binding them to M-0 ... M-9,
+;; M-=, M-- keys.
+;;
+;; ** Data Sources
+;;
+;; Data 'ids.txt' and 'ucs-strokes.txt' are taken from
+;; http://github.com/cjkvi/. License follows their terms.
 
 ;;; Code:
 
@@ -208,7 +214,7 @@ returned."
               (if (/= 1 (length filtered)) "]" "")))))
 
 (defun ids-edit--filter (char regexp min max)
-  "T if any Ids of CHAR match REGEXP and strokes are between MIN and MAX.
+  "T if any IDS of CHAR match REGEXP and strokes are between MIN and MAX.
 Strokes are compared with wildcard (match-string 1) part of REGEXP."
   (let ((ids-list (gethash char ids-edit-table))
         return-value)
