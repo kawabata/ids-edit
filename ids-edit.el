@@ -7,7 +7,7 @@
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.140310
+;; Version: 1.140317
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -96,13 +96,14 @@
               "&CDP-\\(..\\)\\(..\\);" nil t)
         (let* ((x (string-to-number (match-string 1) 16))
                (y (string-to-number (match-string 2) 16))
-               (x (+ (* (- x #x80) 157)
-                     (if (< y 129) (- y 64) (- y 98)))))
+               (x (+ (* (- x #x81) 157)
+                     (if (< y 129) (- y 64) (- y 98))
+                     #xeeb8)))
           (replace-match (char-to-string x))))
       (goto-char (point-min))
       (while (re-search-forward "\\[.+?\\]" nil t) (replace-match ""))
       (goto-char (point-min))
-      (while (re-search-forward "^U.+?	\\(.\\)	\\(.+\\)" nil t)
+      (while (re-search-forward "^[UC].+?	\\(.\\)	\\(.+\\)" nil t)
         (let* ((char (string-to-char (match-string 1)))
                (ids  (split-string (match-string 2))))
           (puthash char ids table))))
@@ -139,10 +140,10 @@
         table))))
 
 ;; Patterns to input.
-;; - at least one ideographs.
+;; - at least one ideographs. (㐀-鿿-﫿𠀀-𯿽)
 ;; - ⿰山30J
 (defconst ivs-edit-regexp
-  "\\(\\(?:[⿰-⿻]\\|\\cC\\)+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\(\\cC+\\)?\\([CJKT]\\)?"
+  "\\([⿰-⿻㐀-鿿-﫿𠀀-𯿽]+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\([㐀-鿿-﫿𠀀-𯿽]+\\)?\\([CJKT]\\)?"
   "Regular Expression for searching IDS.")
 
 ;;;###autoload
@@ -162,9 +163,9 @@ Prefix argument ARG forces to decompose previous Ideograph."
            (looking-at ivs-edit-regexp)
            (or (match-string 1)
                (match-string 4))) (ids-edit--compose (match-data))
-    (when (looking-back "\\cC")
+    (when (looking-back "[㐀-鿿-﫿𠀀-𯿽]")
       (let ((ids-list (gethash (char-before (point)) ids-edit-table)))
-        (when ids-list
+        (if (null ids-list) (message "Can not decompose.")
           (delete-char -1)
           (insert (ids-edit--regularize ids-list)))))))
 
@@ -198,7 +199,7 @@ returned."
          (strokes2 (match-string 3))
          (last (match-string 4))
          (flag (match-string 5))
-         (char (when (string-match "\\cC" (concat last first))
+         (char (when (string-match "[㐀-鿿-﫿𠀀-𯿽]" (concat last first))
                  (string-to-char (match-string 0 (concat last first)))))
          (candidates (gethash char ids-edit-component-table))
          max min regexp filtered)
@@ -227,7 +228,7 @@ returned."
            candidates))
     (set-match-data match-data)
     (setq filtered (cl-remove-duplicates filtered))
-    (when filtered
+    (if (null filtered) (message "Not found!")
       (delete-region (match-beginning 0) (match-end 0))
       (insert (if (/= 1 (length filtered)) "[" "")
               (apply 'string filtered)
