@@ -3,11 +3,11 @@
 ;; Author: KAWABATA, Taichi <kawabata.taichi_at_gmail.com>
 ;; Description: Tools for Editing Ideographic Variation Sequences
 ;; Created: 2014-01-01
-;; Package-Requires: ((emacs "24.3"))
+;; Package-Requires: ((emacs "24.3") (cl-lib "0.3"))
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.140317
+;; Version: 1.140319
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -73,6 +73,8 @@
 ;; http://github.com/cjkvi/. License follows their terms.
 
 ;;; Code:
+
+(require 'cl-lib)
 
 (eval-and-compile
 (defun ids--edit-addhash (key value table)
