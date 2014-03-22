@@ -3,11 +3,11 @@
 ;; Author: KAWABATA, Taichi <kawabata.taichi_at_gmail.com>
 ;; Description: Tools for Editing Ideographic Variation Sequences
 ;; Created: 2014-01-01
-;; Package-Requires: ((emacs "24.3") (cl-lib "0.3"))
+;; Package-Requires: ((emacs "24.3"))
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.140319
+;; Version: 1.140323
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -27,6 +27,11 @@
 ;;
 ;; : (autoload 'ids-edit-mode "ids-edit" nil t) ;; if necessary
 ;; : (autoload 'ids-edit "ids-edit" nil t)
+;;
+;; If you want to assign other key, you can do it to any keymap.
+;; For example:
+;;
+;; : (global-set-key (kbd "M-u") 'ids-edit)
 ;;
 ;; ** IDS edit mode
 ;;
@@ -48,6 +53,8 @@
 ;; | M-- | "⿺" (U+2FFa) |
 ;; | M-= | "⿻" (U+2FFb) |
 ;; | M-U | ids-edit      |
+;;
+;; You can customize the key bind by defining key to `ids-edit-mode-map'.
 ;;
 ;; ** Decomposing CJK Ideographs to IDS
 ;;
@@ -142,10 +149,10 @@
         table))))
 
 ;; Patterns to input.
-;; - at least one ideographs. (㐀-鿿-﫿𠀀-𯿽)
+;; - at least one ideographs. (⺀-⻳㐀-鿿-﫿𠀀-𯿽)
 ;; - ⿰山30J
 (defconst ivs-edit-regexp
-  "\\([⿰-⿻㐀-鿿-﫿𠀀-𯿽]+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\([㐀-鿿-﫿𠀀-𯿽]+\\)?\\([CJKT]\\)?"
+  "\\([⿰-⿻⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\([⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\([CJKT]\\)?"
   "Regular Expression for searching IDS.")
 
 ;;;###autoload
@@ -158,14 +165,14 @@
 
 ;;;###autoload
 (defun ids-edit (arg)
-  "Insert and Verify IDS after the current point.
-Prefix argument ARG forces to decompose previous Ideograph."
+  "Compose IDS after the point, or decompose previous ideograph.
+Prefix argument ARG forces to decompose previous ideograph."
   (interactive "P")
   (if (and (null arg)
            (looking-at ivs-edit-regexp)
            (or (match-string 1)
                (match-string 4))) (ids-edit--compose (match-data))
-    (when (looking-back "[㐀-鿿-﫿𠀀-𯿽]")
+    (when (looking-back "[⺀-⻳㐀-鿿-﫿𠀀-𯿽]")
       (let ((ids-list (gethash (char-before (point)) ids-edit-table)))
         (if (null ids-list) (message "Can not decompose.")
           (delete-char -1)
@@ -201,7 +208,7 @@ returned."
          (strokes2 (match-string 3))
          (last (match-string 4))
          (flag (match-string 5))
-         (char (when (string-match "[㐀-鿿-﫿𠀀-𯿽]" (concat last first))
+         (char (when (string-match "[⺀-⻳㐀-鿿-﫿𠀀-𯿽]" (concat last first))
                  (string-to-char (match-string 0 (concat last first)))))
          (candidates (gethash char ids-edit-component-table))
          max min regexp filtered)
