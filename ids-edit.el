@@ -7,7 +7,7 @@
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.140323
+;; Version: 1.140330
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -83,6 +83,9 @@
 
 (require 'cl-lib)
 
+(eval-when-compile
+  (when (featurep 'ids-edit) (unload-feature 'ids-edit)))
+
 (eval-and-compile
 (defun ids--edit-addhash (key value table)
   "Add to KEY a VALUE in table TABLE."
@@ -156,12 +159,23 @@
   "Regular Expression for searching IDS.")
 
 ;;;###autoload
-(easy-mmode-define-minor-mode
- ids-edit-mode "IDS Edit Mode" nil "⿰"
- '(("\M-0" . "⿰") ("\M-1" . "⿱") ("\M-2" . "⿲") ("\M-3" . "⿳")
-   ("\M-4" . "⿴") ("\M-5" . "⿵") ("\M-6" . "⿶") ("\M-7" . "⿷")
-   ("\M-8" . "⿸") ("\M-9" . "⿹") ("\M--" . "⿺") ("\M-=" . "⿻")
-   ("\M-U" . ids-edit)))
+(define-minor-mode ids-edit-mode
+  "minor-mode for editing ideographs by Ideographic Description Sequence (IDS)."
+  :init-value nil
+  :lighter "⿰"
+  :keymap
+  '(("\M-0" . "⿰") ("\M-1" . "⿱") ("\M-2" . "⿲") ("\M-3" . "⿳")
+    ("\M-4" . "⿴") ("\M-5" . "⿵") ("\M-6" . "⿶") ("\M-7" . "⿷")
+    ("\M-8" . "⿸") ("\M-9" . "⿹") ("\M--" . "⿺") ("\M-=" . "⿻")
+    ("\M-U" . ids-edit)))
+
+(defun ids-edit--turn-on ()
+  "Explicitly turn on IDS edit mode."
+  (unless (minibufferp) (ids-edit-mode +1)))
+
+;;;###autoload
+(define-global-minor-mode global-ids-edit-mode
+  ids-edit-mode ids-edit--turn-on)
 
 ;;;###autoload
 (defun ids-edit (arg)
