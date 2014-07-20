@@ -107,6 +107,7 @@
 
 (defvar ids-edit-table
   (eval-when-compile
+    (require 'bytecomp)
     (let* ((directory (file-name-directory (or byte-compile-current-file
                                              load-file-name
                                              buffer-file-name)))
@@ -141,6 +142,7 @@
 
 (defvar ids-edit-stroke-table
   (eval-when-compile
+    (require 'bytecomp)
     (let* ((directory (file-name-directory (or byte-compile-current-file
                                                load-file-name
                                                buffer-file-name)))
