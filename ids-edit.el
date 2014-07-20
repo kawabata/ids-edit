@@ -7,7 +7,7 @@
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.140708
+;; Version: 1.140720
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -94,6 +94,17 @@
       (puthash key (list value) table)))))
 
 (eval-and-compile
+(defun ids--replace-cdp ()
+  (goto-char (point-min))
+  (while (re-search-forward
+          "&CDP-\\(..\\)\\(..\\);" nil t)
+    (let* ((x (string-to-number (match-string 1) 16))
+           (y (string-to-number (match-string 2) 16))
+           (x (+ (* (- x #x81) 157)
+                 (if (< y 129) (- y 64) (- y 98))
+                 #xeeb8)))
+      (replace-match (char-to-string x)))))
+
 (defvar ids-edit-table
   (eval-when-compile
     (let* ((directory (file-name-directory (or byte-compile-current-file
@@ -104,14 +115,7 @@
     (unless (file-exists-p ids-file) (error "Data file not found!"))
     (with-temp-buffer
       (insert-file-contents ids-file)
-      (while (re-search-forward
-              "&CDP-\\(..\\)\\(..\\);" nil t)
-        (let* ((x (string-to-number (match-string 1) 16))
-               (y (string-to-number (match-string 2) 16))
-               (x (+ (* (- x #x81) 157)
-                     (if (< y 129) (- y 64) (- y 98))
-                     #xeeb8)))
-          (replace-match (char-to-string x))))
+      (ids--replace-cdp)
       (goto-char (point-min))
       (while (re-search-forward "\\[.+?\\]" nil t) (replace-match ""))
       (goto-char (point-min))
@@ -144,6 +148,7 @@
            (table (make-hash-table)))
       (with-temp-buffer
         (insert-file-contents strokes-file)
+        (ids--replace-cdp)
         (while (re-search-forward "	\\(.\\)	\\(.+\\)" nil t)
           (let ((char (string-to-char (match-string 1)))
                 (strokes (split-string (match-string 2) ",")))
@@ -155,7 +160,7 @@
 ;; - at least one ideographs. (⺀-⻳㐀-鿿-﫿𠀀-𯿽)
 ;; - ⿰山30J
 (defconst ivs-edit-regexp
-  "\\([⿰-⿻⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\([⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\([CJKT]\\)?"
+  "\\([⿰-⿻⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\([⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\([GJKT]\\)?"
   "Regular Expression for searching IDS.")
 
 ;;;###autoload
@@ -241,7 +246,7 @@ returned."
                                (encode-char char 'japanese-jisx0213-2)
                                (encode-char char 'japanese-jisx0212)))
                           ((equal flag "G")
-                           (encode-char char 'chinese-gb2301))
+                           (encode-char char 'chinese-gb2312))
                           ((equal flag "T")
                            (or (encode-char char 'chinese-big5-1)
                                (encode-char char 'chinese-big5-2)))
