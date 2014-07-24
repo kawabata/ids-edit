@@ -7,7 +7,7 @@
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.140720
+;; Version: 1.140724
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -151,6 +151,7 @@
       (with-temp-buffer
         (insert-file-contents strokes-file)
         (ids--replace-cdp)
+        (goto-char (point-min))
         (while (re-search-forward "	\\(.\\)	\\(.+\\)" nil t)
           (let ((char (string-to-char (match-string 1)))
                 (strokes (split-string (match-string 2) ",")))
