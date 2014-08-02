@@ -15,13 +15,13 @@ are called IDCs (Ideographic Description Characters).
 ** Description
 
 Today, more than 81,000 ideographs have been encoded in Unicode. To
-ease typing appropriate ideograph among them, selecting appropriate
-character by a component and stroke number is one of the solution.
+ease searching an appropriate ideograph among them, selecting an
+ideograph by a component and stroke number may be a solution.
 
-Once you install this tool, "ids-edit-mode" and "global-ids-edit-mode"
-will be enabled. In this mode, you can decompose ideograph, compose
-ideograph by component and stroke number, and type in IDC by simple
-key combination.
+After installation, "ids-edit-mode" and "global-ids-edit-mode" will be
+enabled. In this minor mode, you can decompose any ideograph
+instantly, or compose ideograph by components and/or stroke number,
+and type an IDCs by simple key combinations.
 
 ** Usage
 
