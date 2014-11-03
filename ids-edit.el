@@ -7,7 +7,7 @@
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.140904
+;; Version: 1.141103
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -87,7 +87,7 @@
   (when (featurep 'ids-edit) (unload-feature 'ids-edit)))
 
 (eval-and-compile
-(defun ids--edit-addhash (key value table)
+(defun ids-edit--addhash (key value table)
   "Add to KEY a VALUE in table TABLE."
   (let* ((old-value (gethash key table)))
     (if old-value (nconc old-value (list value))
@@ -128,6 +128,24 @@
     table))
   "IDS table."))
 
+(eval-and-compile
+(defvar ids-edit--equiv-chars
+  ;;(eval-when-compile
+    (let ((equivs '((?飠 ?𩙿) (?糸 ?糹) (?子 ?孑) (?戶 ?户 ?戸) (?示 ?礻) (?靑 ?青)
+                    (?黑 ?黒) (?黃 ?黄) (?卥 ?𠧧)))
+          (table (make-hash-table)))
+      (dolist (pair equivs)
+        (dolist (char pair)
+          (puthash char pair table)))
+      table)))
+
+(defvar ids-edit--equiv-regexp
+  (eval-when-compile
+    (let (chars)
+      (maphash (lambda (key _val) (setq chars (cons key chars)))
+               ids-edit--equiv-chars)
+      (concat "[" (apply 'string chars) "]"))))
+
 (defvar ids-edit-component-table
   (eval-when-compile
     (let ((table (make-hash-table)))
@@ -135,8 +153,8 @@
        (lambda (char ids-list)
          (dolist (ids ids-list)
            (dolist (component (string-to-list ids))
-             (when (< #x3000 component)
-               (ids--edit-addhash component char table)))))
+             (when (or (< #x3000 component) (< component #x2f00))
+               (ids-edit--addhash component char table)))))
        ids-edit-table)
       table))
   "IDS Component table.")
@@ -157,13 +175,13 @@
           (let ((char (string-to-char (match-string 1)))
                 (strokes (split-string (match-string 2) ",")))
             (dolist (stroke strokes)
-              (ids--edit-addhash char (string-to-number stroke) table))))
+              (ids-edit--addhash char (string-to-number stroke) table))))
         table))))
 
 ;; Patterns to input.
 ;; - at least one ideographs. (⺀-⻳㐀-鿿-﫿𠀀-𯿽)
 ;; - ⿰山30J
-(defconst ivs-edit-regexp
+(defconst ids-edit-regexp
   "\\([⿰-⿻⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\([⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\([GJKT]\\)?"
   "Regular Expression for searching IDS.")
 
@@ -192,7 +210,7 @@
 Prefix argument ARG forces to decompose previous ideograph."
   (interactive "P")
   (if (and (null arg)
-           (looking-at ivs-edit-regexp)
+           (looking-at ids-edit-regexp)
            (or (match-string 1)
                (match-string 4))) (ids-edit--compose (match-data))
     (when (looking-back "[⺀-⻳㐀-鿿-﫿𠀀-𯿽]")
@@ -233,14 +251,27 @@ returned."
          (flag (match-string 5))
          (char (when (string-match "[⺀-⻳㐀-鿿-﫿𠀀-𯿽]" (concat last first))
                  (string-to-char (match-string 0 (concat last first)))))
-         (candidates (gethash char ids-edit-component-table))
+         (chars (or (gethash char ids-edit--equiv-chars) (list char)))
+         (candidates-tmp
+          (mapcar (lambda (char)
+                    (copy-sequence
+                     (gethash char ids-edit-component-table)))
+                  chars))
+         (candidates
+          (sort
+           (if (= 1 (length candidates-tmp)) (car candidates-tmp)
+             (apply 'cl-nunion candidates-tmp))
+           '<))
          max min regexp filtered)
-    ;;(message "first=%s str=%s str2=%s last=%s flag=%s char=%s
+    ;;(message "first=%s str=%s str2=%s last=%s flag=%s char=%s chars=%s
     ;;         candidates=%s" first strokes strokes2 last flag char
-    ;;         (pp-to-string candidates))
+    ;;         (apply 'string chars)
+    ;;         (apply 'string candidates))
     (if strokes (setq min (string-to-number strokes)))
     (setq max (if strokes2 (- (string-to-number strokes2)) min))
-    (setq regexp (concat first (if strokes "\\(.+\\)") last))
+    (setq regexp (concat (ids-edit--expand-regexp first)
+                         (if strokes "\\(.+\\)")
+                         (ids-edit--expand-regexp last)))
     (setq filtered
           (cl-remove-if-not
            (lambda (char)
@@ -265,6 +296,19 @@ returned."
       (insert (if (/= 1 (length filtered)) "[" "")
               (apply 'string filtered)
               (if (/= 1 (length filtered)) "]" "")))))
+
+(defun ids-edit--expand-regexp (str)
+  "Return regexp that match any of equivalent characters in STR.
+e.g. \"飠糸\" → \"[飠𩙿][糸糹]\"."
+  (when str
+    (replace-regexp-in-string
+     ids-edit--equiv-regexp
+     (lambda (match)
+       (concat "["
+               (apply 'string
+                      (gethash (string-to-char match) ids-edit--equiv-chars))
+               "]"))
+     str)))
 
 (defun ids-edit--filter (char regexp min max)
   "T if any IDS of CHAR match REGEXP and strokes are between MIN and MAX.
