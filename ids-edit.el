@@ -7,7 +7,7 @@
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.141103
+;; Version: 1.141113
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -259,8 +259,10 @@ returned."
                   chars))
          (candidates
           (sort
-           (if (= 1 (length candidates-tmp)) (car candidates-tmp)
-             (apply 'cl-nunion candidates-tmp))
+           (let* ((first (car candidates-tmp))
+                  (rest (cdr candidates-tmp)))
+             (dolist (each rest) (setq first (cl-nunion first each)))
+             first)
            '<))
          max min regexp filtered)
     ;;(message "first=%s str=%s str2=%s last=%s flag=%s char=%s chars=%s
