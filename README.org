@@ -67,7 +67,7 @@ composed to "[灊灝灞灣]".
 ** Install
 
 You can directly install this tool with
-[[http://melpa.milkbox.net/][MELPA]].
+[[https://melpa.org/][MELPA]].
 
 If you install manually, please BYTE-COMPILE the elisp file. That will
 integrate data files into compiled lisp file. Following setting would
