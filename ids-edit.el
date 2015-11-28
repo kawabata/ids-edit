@@ -7,7 +7,7 @@
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.141113
+;; Version: 1.151124
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -87,13 +87,6 @@
   (when (featurep 'ids-edit) (unload-feature 'ids-edit)))
 
 (eval-and-compile
-(defun ids-edit--addhash (key value table)
-  "Add to KEY a VALUE in table TABLE."
-  (let* ((old-value (gethash key table)))
-    (if old-value (nconc old-value (list value))
-      (puthash key (list value) table)))))
-
-(eval-and-compile
 (defun ids-replace-cdp ()
   "Replace &CDP-XXXX; entity references to PUA characters."
   (goto-char (point-min))
@@ -126,7 +119,8 @@
                (ids  (split-string (match-string 2))))
           (puthash char ids table))))
     table))
-  "IDS table."))
+  "IDS table.")
+)
 
 (eval-and-compile
 (defvar ids-edit--equiv-chars
@@ -154,7 +148,7 @@
          (dolist (ids ids-list)
            (dolist (component (string-to-list ids))
              (when (or (< #x3000 component) (< component #x2f00))
-               (ids-edit--addhash component char table)))))
+               (cl-pushnew char (gethash component table))))))
        ids-edit-table)
       table))
   "IDS Component table.")
@@ -175,7 +169,7 @@
           (let ((char (string-to-char (match-string 1)))
                 (strokes (split-string (match-string 2) ",")))
             (dolist (stroke strokes)
-              (ids-edit--addhash char (string-to-number stroke) table))))
+              (cl-pushnew (string-to-number stroke) (gethash char table)))))
         table))))
 
 ;; Patterns to input.
@@ -213,7 +207,7 @@ Prefix argument ARG forces to decompose previous ideograph."
            (looking-at ids-edit-regexp)
            (or (match-string 1)
                (match-string 4))) (ids-edit--compose (match-data))
-    (when (looking-back "[⺀-⻳㐀-鿿-﫿𠀀-𯿽]")
+    (when (looking-back "[⺀-⻳㐀-鿿-﫿𠀀-𯿽]" nil)
       (let ((ids-list (gethash (char-before (point)) ids-edit-table)))
         (if (null ids-list) (message "Can not decompose.")
           (delete-char -1)
@@ -229,6 +223,21 @@ Prefix argument ARG forces to decompose previous ideograph."
     (if (string-match "^(\\(.+\\))$" regexp)
         (substring regexp 1 -1)
       regexp)))
+
+(defun ids-edit--forward-char ()
+  "If there is an IDS at the point in buffer, forward the point to next.
+Return the IDS tree structure."
+  (interactive)
+  (cond ((looking-at "[⿰⿱⿴⿵⿶⿷⿸⿹⿺⿻]")
+         (forward-char)
+         (list (char-before (point))
+               (ids-edit--forward-char) (ids-edit--forward-char)))
+        ((looking-at "[⿲⿳]")
+         (forward-char)
+         (list (char-before (point))
+               (ids-edit--forward-char) (ids-edit--forward-char) (ids-edit--forward-char)))
+        ((eobp) (error "Incomplete IDS! %s" (buffer-string)))
+        (t (forward-char) (char-before (point)))))
 
 (defun ids-edit--cartesian-product (head &rest tails)
   "Make a list of combinations of list in arguments (HEAD and TAILS).
