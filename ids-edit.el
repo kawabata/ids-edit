@@ -7,7 +7,7 @@
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.151124
+;; Version: 1.160325
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -105,7 +105,7 @@
     (let* ((directory (file-name-directory (or byte-compile-current-file
                                              load-file-name
                                              buffer-file-name)))
-           (ids-file (expand-file-name "ids.txt" directory))
+           (ids-file (expand-file-name "ids-cdp.txt" directory))
            (table (make-hash-table)))
     (unless (file-exists-p ids-file) (error "Data file not found!"))
     (with-temp-buffer
@@ -176,7 +176,7 @@
 ;; - at least one ideographs. (⺀-⻳㐀-鿿-﫿𠀀-𯿽)
 ;; - ⿰山30J
 (defconst ids-edit-regexp
-  "\\([⿰-⿻⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\([⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\([GJKT]\\)?"
+  "\\([⿰-⿻㇀-㇣⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\([㇀-㇣⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\([GJKT]\\)?"
   "Regular Expression for searching IDS.")
 
 ;;;###autoload
@@ -207,7 +207,7 @@ Prefix argument ARG forces to decompose previous ideograph."
            (looking-at ids-edit-regexp)
            (or (match-string 1)
                (match-string 4))) (ids-edit--compose (match-data))
-    (when (looking-back "[⺀-⻳㐀-鿿-﫿𠀀-𯿽]" nil)
+    (when (looking-back "[㇀-㇣⺀-⻳㐀-鿿-﫿𠀀-𯿽]" nil)
       (let ((ids-list (gethash (char-before (point)) ids-edit-table)))
         (if (null ids-list) (message "Can not decompose.")
           (delete-char -1)
@@ -258,7 +258,7 @@ returned."
          (strokes2 (match-string 3))
          (last (match-string 4))
          (flag (match-string 5))
-         (char (when (string-match "[⺀-⻳㐀-鿿-﫿𠀀-𯿽]" (concat last first))
+         (char (when (string-match "[㇀-㇣⺀-⻳㐀-鿿-﫿𠀀-𯿽]" (concat last first))
                  (string-to-char (match-string 0 (concat last first)))))
          (chars (or (gethash char ids-edit--equiv-chars) (list char)))
          (candidates-tmp
