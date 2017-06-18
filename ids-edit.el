@@ -7,7 +7,7 @@
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.160325
+;; Version: 1.170618
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -76,17 +76,17 @@
 ;;
 ;; ** Data Sources
 ;;
-;; Data 'ids.txt' and 'ucs-strokes.txt' are taken from
+;; Data 'ids-cdp.txt' and 'ucs-strokes.txt' are taken from
 ;; http://github.com/cjkvi/. License follows their terms.
 
 ;;; Code:
 
 (require 'cl-lib)
 
-(eval-when-compile
-  (when (featurep 'ids-edit) (unload-feature 'ids-edit)))
+;(eval-when-compile
+;  (when (featurep 'ids-edit) (unload-feature 'ids-edit)))
 
-(eval-and-compile
+(eval-when-compile
 (defun ids-replace-cdp ()
   "Replace &CDP-XXXX; entity references to PUA characters."
   (goto-char (point-min))
@@ -176,7 +176,7 @@
 ;; - at least one ideographs. (⺀-⻳㐀-鿿-﫿𠀀-𯿽)
 ;; - ⿰山30J
 (defconst ids-edit-regexp
-  "\\([⿰-⿻㇀-㇣⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\([㇀-㇣⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\([GJKT]\\)?"
+  "\\([⿰-⿻㇀-㇣⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\([㇀-㇣⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\([GJKT]\\)?"
   "Regular Expression for searching IDS.")
 
 ;;;###autoload
