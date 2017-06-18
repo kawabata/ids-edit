@@ -86,7 +86,7 @@
 ;(eval-when-compile
 ;  (when (featurep 'ids-edit) (unload-feature 'ids-edit)))
 
-(eval-when-compile
+(eval-and-compile
 (defun ids-replace-cdp ()
   "Replace &CDP-XXXX; entity references to PUA characters."
   (goto-char (point-min))
