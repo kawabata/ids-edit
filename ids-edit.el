@@ -7,7 +7,7 @@
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.170621
+;; Version: 1.170622
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
