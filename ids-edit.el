@@ -7,7 +7,7 @@
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.170618
+;; Version: 1.170621
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -87,7 +87,7 @@
 ;  (when (featurep 'ids-edit) (unload-feature 'ids-edit)))
 
 (eval-and-compile
-(defun ids-replace-cdp ()
+(defun ids-edit-replace-cdp ()
   "Replace &CDP-XXXX; entity references to PUA characters."
   (goto-char (point-min))
   (while (re-search-forward
@@ -110,7 +110,7 @@
     (unless (file-exists-p ids-file) (error "Data file not found!"))
     (with-temp-buffer
       (insert-file-contents ids-file)
-      (ids-replace-cdp)
+      (ids-edit-replace-cdp)
       (goto-char (point-min))
       (while (re-search-forward "\\[.+?\\]" nil t) (replace-match ""))
       (goto-char (point-min))
@@ -163,7 +163,7 @@
            (table (make-hash-table)))
       (with-temp-buffer
         (insert-file-contents strokes-file)
-        (ids-replace-cdp)
+        (ids-edit-replace-cdp)
         (goto-char (point-min))
         (while (re-search-forward "	\\(.\\)	\\(.+\\)" nil t)
           (let ((char (string-to-char (match-string 1)))
