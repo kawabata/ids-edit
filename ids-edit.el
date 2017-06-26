@@ -7,7 +7,7 @@
 ;; Keywords: text
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.170622
+;; Version: 1.170626
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -176,7 +176,14 @@
 ;; - at least one ideographs. (⺀-⻳㐀-鿿-﫿𠀀-𯿽)
 ;; - ⿰山30J
 (defconst ids-edit-regexp
-  "\\([⿰-⿻㇀-㇣⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?\\([㇀-㇣⺀-⻳㐀-鿿-﫿𠀀-𯿽]+\\)?\\([GJKT]\\)?"
+  (let ((ids "⿰-⿻")
+        (stroke-char "①-⑳")
+        (non-han "αℓ△⺀⺄⺆⺊⺌⺸⺻⺼〢いよコサスユ㇀㇇㇉㇎㇞㇢㇣𛂦")
+        (han "㐀-鿪豈-龎𠀀-𪘀")
+        (cdp "-"))
+    (concat "\\([" ids stroke-char non-han han cdp "]+\\)?"
+            "\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?"
+            "\\([" ids stroke-char non-han han cdp "]+\\)?\\([GJKT]\\)?"))
   "Regular Expression for searching IDS.")
 
 ;;;###autoload
