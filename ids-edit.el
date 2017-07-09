@@ -101,7 +101,7 @@
 
 (eval-when-compile
   (defvar ids-edit--dc-list
-    (number-sequence ?⿱ ?⿻)))
+    (number-sequence ?⿰ ?⿻)))
 
 (defvar ids-edit-table
   (eval-when-compile
