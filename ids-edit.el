@@ -4,10 +4,10 @@
 ;; Description: Tools for Editing Ideographic Variation Sequences
 ;; Created: 2014-01-01
 ;; Package-Requires: ((emacs "24.3"))
-;; Keywords: text
+;; Keywords: i18n, wp
 ;; Namespace: ids-edit-
 ;; Human-Keywords: Ideographic Description Sequence
-;; Version: 1.170626
+;; Version: 1.170709
 ;; URL: http://github.com/kawabata/ids-edit
 
 ;;; Commentary:
@@ -99,6 +99,10 @@
                  #xeeb8)))
       (replace-match (char-to-string x)))))
 
+(eval-when-compile
+  (defvar ids-edit--dc-list
+    (number-sequence ?⿱ ?⿻)))
+
 (defvar ids-edit-table
   (eval-when-compile
     (require 'bytecomp)
@@ -117,10 +121,15 @@
       (while (re-search-forward "^[UC].+?	\\(.\\)	\\(.+\\)" nil t)
         (let* ((char (string-to-char (match-string 1)))
                (ids  (split-string (match-string 2))))
+          (setq ids-edit--dc-list (cons char ids-edit--dc-list))
           (puthash char ids table))))
     table))
   "IDS table.")
 )
+
+(defconst ids-edit-char-regexp
+  (eval-when-compile
+    (regexp-opt (mapcar 'char-to-string ids-edit--dc-list))))
 
 (eval-and-compile
 (defvar ids-edit--equiv-chars
@@ -176,14 +185,9 @@
 ;; - at least one ideographs. (⺀-⻳㐀-鿿-﫿𠀀-𯿽)
 ;; - ⿰山30J
 (defconst ids-edit-regexp
-  (let ((ids "⿰-⿻")
-        (stroke-char "①-⑳")
-        (non-han "αℓ△⺀⺄⺆⺊⺌⺸⺻⺼〢いよコサスユ㇀㇇㇉㇎㇞㇢㇣𛂦")
-        (han "㐀-鿪豈-龎𠀀-𪘀")
-        (cdp "-"))
-    (concat "\\([" ids stroke-char non-han han cdp "]+\\)?"
-            "\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?"
-            "\\([" ids stroke-char non-han han cdp "]+\\)?\\([GJKT]\\)?"))
+  (concat "\\(" ids-edit-char-regexp "+\\)?"
+          "\\(?:\\([0-9]+\\)\\(-[0-9]+\\)?\\)?"
+          "\\(" ids-edit-char-regexp "+\\)?\\([GJKT]\\)?")
   "Regular Expression for searching IDS.")
 
 ;;;###autoload
